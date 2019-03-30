@@ -18,10 +18,12 @@ module HelloWorldRails
     #
 
     config.generators do |g|
+      g.template_engine false
       g.javascripts false
       g.stylesheets false
       g.helper false
       g.test_framework false
     end
+    config.api_only = true
   end
 end
