@@ -3,6 +3,6 @@ FactoryBot.define do
     postal_code { Faker::Address.postcode }
     address { Faker::Address.city }
     birthday { 20.years.ago }
-    association :user, factory: :user
+    user
   end
 end
