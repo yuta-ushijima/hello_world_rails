@@ -18,8 +18,11 @@ RSpec.describe "Users", type: :request do
   end
 
   describe "POST /users" do
+    subject { post(users_path, params: params) }
+    let(:params) {{ user: attributes_for(:user) }}
     it "ユーザーのレコードが作成できること" do
-
+      expect { subject }.to change { User.count }.by(1)
+      expect(response).to have_http_status(204)
     end
   end
 
