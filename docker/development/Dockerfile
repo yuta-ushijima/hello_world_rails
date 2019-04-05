@@ -35,7 +35,7 @@ RUN apk update \
 	    redis \
 	    tzdata \
 	    xvfb \
- && apk add --update --no-cache --virtual .build-dependencies \
+ && apk add --update --no-cache \
 	    build-base \
 	    wget \
 	    yaml-dev \
