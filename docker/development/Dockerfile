@@ -1,4 +1,4 @@
-# receptionist-server(Rails/MySQL)
+# hello_world_rails(Rails/MySQL)
 FROM ruby:2.6.1-alpine
 LABEL maintainer="Yuta_Ushijima<register@yuta-u.com>"
 
