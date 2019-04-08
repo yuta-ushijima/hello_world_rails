@@ -13,7 +13,7 @@ ENV APP="/hello_world_rails" \
     NOKOGIRI_OPTION="--use-system-libraries \
                      --with-xml2-config=/usr/bin/xml2-config \
                      --with-xslt-config=/usr/bin/xslt-config" \
-    MYSQL_PORT=3306 \
+    MYSQL_PORT=5306 \
     SERVER_PORT=3000
 
 
