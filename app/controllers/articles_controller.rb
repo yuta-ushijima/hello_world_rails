@@ -3,21 +3,26 @@ class ArticlesController < ApplicationController
 
   def index
     @articles = Article.all.includes(:user)
+    render json: @articles
   end
 
   def show
+    render json: @article
   end
 
   def create
     @article = Article.create!(article_params)
+    render json: @article
   end
 
   def update
     @article.update!(article_params)
+    render json: @article
   end
 
   def destroy
     @article.destroy!
+    render json: {}, status: 204
   end
 
   private
@@ -26,6 +31,6 @@ class ArticlesController < ApplicationController
     end
 
     def article_params
-      params.require(:article).permit(:title, :body)
+      params.require(:article).permit(:title, :body, :user_id)
     end
 end
