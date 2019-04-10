@@ -18,11 +18,24 @@ RSpec.describe "Articles", type: :request do
 
   describe "POST /articles" do
     subject { post(articles_path, params: params) }
-    let!(:user) { create(:user)}
-    let!(:params) {{ article: attributes_for(:article, user_id: user.id) }}
-    it "記事のレコードが作成できること" do
-      expect { subject }.to change { Article.count }.by(1)
-      expect(response).to have_http_status(200)
+    context "ユーザーがログインしているとき" do
+      let(:current_user) { create(:user) }
+      let(:params) {{ article: attributes_for(:article, user_id: current_user.id) }}
+      it "記事のレコードが作成できること" do
+        expect { subject }.to change { Article.count }.by(1)
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context "ユーザーがログインしていないとき" do
+      let(:current_user) { nil }
+      let(:params) {{ article: attributes_for(:article) }}
+      it "エラーが返ってくること" do
+        subject
+        res = JSON.parse(response.body)
+        expect(res["errors"]["status"]).to eq(403)
+        expect(res["errors"]["messages"]).to eq("ログインしてください")
+      end
     end
   end
 
@@ -36,10 +49,10 @@ RSpec.describe "Articles", type: :request do
     end
 
     context "指定した記事idが見つかったとき" do
-      let(:article) { create(:article, user_id: user.id) }
+      let!(:article) { create(:article, user_id: user.id) }
       let(:article_id) { article.id }
       let!(:user) { create(:user) }
-      let!(:user_id) { user.id }
+      let(:user_id) { user.id }
       it "記事の値が取得できること" do
         subject
         res = JSON.parse(response.body)
@@ -52,23 +65,30 @@ RSpec.describe "Articles", type: :request do
 
   describe "PATCH /articles/:id" do
     subject { patch article_path(article.id, params) }
-    let(:params) {{ article: { title: Faker::Markdown.headers, created_at: Time.current }}}
-    let(:article) { create(:article) }
-    it "任意の記事のレコードが更新できること" do
-      expect { subject }.to change { Article.find(article.id).title}.from(article.title).to(params[:article][:title])
-      expect { subject }.not_to change { Article.find(article.id).title }
-      expect { subject }.not_to change { Article.find(article.id).body }
-      expect { subject }.not_to change { Article.find(article.id).created_at }
-      expect(response).to have_http_status(200)
+    let!(:article) { create(:article) }
+
+    context "ユーザーがログインしているとき" do
+      let!(:current_user) { create(:user) }
+      let(:params) {{ article: { title: Faker::Markdown.headers, created_at: Time.current }}}
+      it "任意の記事のレコードが更新できること" do
+        expect { subject }.to change { Article.find(article.id).title}.from(article.title).to(params[:article][:title])
+        expect { subject }.not_to change { Article.find(article.id).body }
+        expect { subject }.not_to change { Article.find(article.id).created_at }
+        expect(response).to have_http_status(200)
+      end
     end
   end
 
   describe "DELETE /articles/:id" do
     subject { delete article_path(article.id) }
     let!(:article) { create(:article) }
-    it "任意の記事のレコードが削除できること" do
-      expect { subject }.to change { Article.count }.by(-1)
-      expect(response).to have_http_status(204)
+
+    context "ユーザーがログインしているとき" do
+      let!(:current_user) { create(:user)}
+      it "任意の記事のレコードが削除できること" do
+        expect { subject }.to change { Article.count }.by(-1)
+        expect(response).to have_http_status(204)
+      end
     end
   end
 end
