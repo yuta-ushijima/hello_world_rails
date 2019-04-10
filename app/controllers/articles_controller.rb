@@ -1,6 +1,6 @@
 class ArticlesController < ApplicationController
   before_action :set_article, only: [:update, :destroy]
-  skip_before_action :is_login?, only: [:index, :show]
+  skip_before_action :authenticate_user!, only: [:index, :show]
 
   def index
     @articles = Article.all.includes(:user)

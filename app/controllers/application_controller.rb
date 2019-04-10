@@ -1,12 +1,12 @@
 class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
-  before_action :is_login?
+  before_action :authenticate_user!
 
   def current_user
-    @current_user = User.first
+    @current_user ||= User.first
   end
 
-  def is_login?
+  def authenticate_user!
     current_user.nil? ? auth_error : current_user
   end
 
