@@ -1,5 +1,6 @@
 class ArticlesController < ApplicationController
-  before_action :set_article, only: [:show, :update, :destroy]
+  before_action :set_article, only: [:update, :destroy]
+  skip_before_action :is_login?, only: [:index, :show]
 
   def index
     @articles = Article.all.includes(:user)
@@ -7,11 +8,12 @@ class ArticlesController < ApplicationController
   end
 
   def show
+    @article = Article.find(params[:id])
     render json: @article
   end
 
   def create
-    @article = Article.create!(article_params)
+    @article = current_user.articles.create!(article_params)
     render json: @article
   end
 
@@ -27,7 +29,7 @@ class ArticlesController < ApplicationController
 
   private
     def set_article
-      @article = Article.find(params[:id])
+      @article = current_user.articles.find(params[:id])
     end
 
     def article_params
