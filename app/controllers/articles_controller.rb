@@ -3,7 +3,7 @@ class ArticlesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index, :show]
 
   def index
-    @articles = Article.is_published.all.includes(:user)
+    @articles = Article.published.all.includes(:user)
     render json: @articles
   end
 
@@ -11,7 +11,7 @@ class ArticlesController < ApplicationController
     if current_user
       @article = current_user.articles.find(params[:id])
     else
-      @article = Article.is_published.find(params[:id])
+      @article = Article.published.find(params[:id])
     end
     render json: @article
   end

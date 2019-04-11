@@ -24,11 +24,7 @@ RSpec.describe "Articles", type: :request do
 
     context "記事がすべて非公開のとき" do
 
-      10.times do
-        before do
-          create(:article)
-        end
-      end
+      before { create_list(:article, 10)}
 
       it "空配列が返ること" do
         subject
