@@ -4,15 +4,34 @@ RSpec.describe "Articles", type: :request do
   describe "GET /users" do
     subject { get(articles_path) }
 
-    before do
-      create_list(:article, 3)
+
+    context "公開中の記事があるとき" do
+
+      10.times do
+        before do
+          create(:article, post_status: :published)
+        end
+      end
+
+      it "記事一覧が取得できること" do
+        subject
+        res = JSON.parse(response.body)
+        expect(res.length).to eq(10)
+        expect(res[0].keys).to include("title", "body", "user_id", "post_status")
+        expect(response.status).to eq(200)
+      end
     end
-    it "記事一覧が取得できること" do
-      subject
-      res = JSON.parse(response.body)
-      expect(res.length).to eq 3
-      expect(res[0].keys).to include("title", "body", "user_id")
-      expect(response.status).to eq(200)
+
+    context "記事がすべて非公開のとき" do
+
+      before { create_list(:article, 10)}
+
+      it "空配列が返ること" do
+        subject
+        res = JSON.parse(response.body)
+        expect(res.length).to eq(0)
+        expect(response.status).to eq(200)
+      end
     end
   end
 
@@ -49,7 +68,7 @@ RSpec.describe "Articles", type: :request do
     end
 
     context "指定した記事idが見つかったとき" do
-      let!(:article) { create(:article, user_id: user.id) }
+      let!(:article) { create(:article, user_id: user_id, post_status: :published) }
       let(:article_id) { article.id }
       let!(:user) { create(:user) }
       let(:user_id) { user.id }
@@ -59,6 +78,20 @@ RSpec.describe "Articles", type: :request do
         expect(res["title"]).to eq(article.title)
         expect(res["body"]).to eq(article.body)
         expect(res["user_id"]).to eq(user.id)
+      end
+    end
+
+    context "ユーザーがログインしているとき" do
+      let!(:article) { create(:article, user_id: current_user_id) }
+      let(:article_id) { article.id }
+      let!(:current_user) { create(:user) }
+      let(:current_user_id) { current_user.id }
+      it '自分の下書き記事のレコードが取得できること' do
+        subject
+        res = JSON.parse(response.body)
+        expect(res["title"]).to eq(article.title)
+        expect(res["body"]).to eq(article.body)
+        expect(res["user_id"]).to eq(current_user_id)
       end
     end
   end
