@@ -6,9 +6,19 @@ p "Starting Seeding..."
                email: Faker::Internet.email("#{n}"),
   )
 
-  user.articles.create!(title: Faker::Markdown.headers,
-                        body: Faker::Markdown.emphasis,
-  )
+  5.times do
+    user.articles.create!(title: Faker::Markdown.headers,
+                          body: Faker::Markdown.emphasis,
+                          post_status: :published
+    )
+  end
+
+  5.times do
+    user.articles.create!(title: Faker::Markdown.headers,
+                          body: Faker::Markdown.emphasis,
+                          post_status: :draft
+    )
+  end
 end
 p "Complete Seeding!"
 p "===================="
