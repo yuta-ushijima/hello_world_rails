@@ -16,7 +16,7 @@ RSpec.describe "Articles", type: :request do
       it "記事一覧が取得できること" do
         subject
         res = JSON.parse(response.body)
-        expect(res.length).to eq 10
+        expect(res.length).to eq(10)
         expect(res[0].keys).to include("title", "body", "user_id", "post_status")
         expect(response.status).to eq(200)
       end
@@ -33,7 +33,7 @@ RSpec.describe "Articles", type: :request do
       it "空配列が返ること" do
         subject
         res = JSON.parse(response.body)
-        expect(res.length).to eq 0
+        expect(res.length).to eq(0)
         expect(response.status).to eq(200)
       end
     end
@@ -72,7 +72,7 @@ RSpec.describe "Articles", type: :request do
     end
 
     context "指定した記事idが見つかったとき" do
-      let!(:article) { create(:article, user_id: user_id, post_status: 1) }
+      let!(:article) { create(:article, user_id: user_id, post_status: :published) }
       let(:article_id) { article.id }
       let!(:user) { create(:user) }
       let(:user_id) { user.id }
@@ -93,7 +93,6 @@ RSpec.describe "Articles", type: :request do
       it '自分の下書き記事のレコードが取得できること' do
         subject
         res = JSON.parse(response.body)
-        binding.pry
         expect(res["title"]).to eq(article.title)
         expect(res["body"]).to eq(article.body)
         expect(res["user_id"]).to eq(current_user_id)
