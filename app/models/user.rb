@@ -4,8 +4,8 @@ class User < ApplicationRecord
   validates :account, uniqueness: true
 
   # association
-  has_many :articles
-  has_one :user_detail
-  has_many :user_communities
-  has_many :communities, through: :user_communities
+  has_many :articles, dependent: :destroy
+  has_one :user_detail, dependent: :destroy
+  has_many :user_communities, dependent: :destroy
+  has_many :communities, through: :user_communities, dependent: :destroy
 end
