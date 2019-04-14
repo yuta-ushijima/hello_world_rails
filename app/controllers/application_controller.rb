@@ -15,8 +15,8 @@ class ApplicationController < ActionController::Base
       {
         errors: {
           status: 403,
-          messages: "ログインしてください"
-        }
+          messages: "ログインしてください",
+        },
       }
   end
 end

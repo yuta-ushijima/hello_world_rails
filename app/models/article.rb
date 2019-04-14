@@ -3,5 +3,4 @@ class Article < ApplicationRecord
   belongs_to :user
 
   enum post_status: { draft: 0, published: 1 }
-
 end
