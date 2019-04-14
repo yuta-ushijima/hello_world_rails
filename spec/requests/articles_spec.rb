@@ -4,9 +4,7 @@ RSpec.describe "Articles", type: :request do
   describe "GET /users" do
     subject { get(articles_path) }
 
-
     context "公開中の記事があるとき" do
-
       10.times do
         before do
           create(:article, post_status: :published)
@@ -23,8 +21,7 @@ RSpec.describe "Articles", type: :request do
     end
 
     context "記事がすべて非公開のとき" do
-
-      before { create_list(:article, 10)}
+      before { create_list(:article, 10) }
 
       it "空配列が返ること" do
         subject
@@ -37,18 +34,19 @@ RSpec.describe "Articles", type: :request do
 
   describe "POST /articles" do
     subject { post(articles_path, params: params) }
+
     context "ユーザーがログインしているとき" do
       let(:current_user) { create(:user) }
-      let(:params) {{ article: attributes_for(:article, user_id: current_user.id) }}
+      let(:params) { { article: attributes_for(:article, user_id: current_user.id) } }
       it "記事のレコードが作成できること" do
         expect { subject }.to change { Article.count }.by(1)
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 
     context "ユーザーがログインしていないとき" do
       let(:current_user) { nil }
-      let(:params) {{ article: attributes_for(:article) }}
+      let(:params) { { article: attributes_for(:article) } }
       it "エラーが返ってくること" do
         subject
         res = JSON.parse(response.body)
@@ -60,10 +58,11 @@ RSpec.describe "Articles", type: :request do
 
   describe "GET /articles/:id" do
     subject { get article_path(article_id) }
+
     context "指定した記事idが見つからないとき" do
       let!(:article_id) { 1000 }
       it "エラーが返ってくること" do
-        expect{ subject }.to raise_error ActiveRecord::RecordNotFound
+        expect { subject }.to raise_error ActiveRecord::RecordNotFound
       end
     end
 
@@ -86,7 +85,7 @@ RSpec.describe "Articles", type: :request do
       let(:article_id) { article.id }
       let!(:current_user) { create(:user) }
       let(:current_user_id) { current_user.id }
-      it '自分の下書き記事のレコードが取得できること' do
+      it "自分の下書き記事のレコードが取得できること" do
         subject
         res = JSON.parse(response.body)
         expect(res["title"]).to eq(article.title)
@@ -98,29 +97,31 @@ RSpec.describe "Articles", type: :request do
 
   describe "PATCH /articles/:id" do
     subject { patch article_path(article.id, params) }
+
     let!(:article) { create(:article) }
 
     context "ユーザーがログインしているとき" do
       let!(:current_user) { create(:user) }
-      let(:params) {{ article: { title: Faker::Markdown.headers, created_at: Time.current }}}
+      let(:params) { { article: { title: Faker::Markdown.headers, created_at: Time.current } } }
       it "任意の記事のレコードが更新できること" do
-        expect { subject }.to change { Article.find(article.id).title}.from(article.title).to(params[:article][:title])
+        expect { subject }.to change { Article.find(article.id).title }.from(article.title).to(params[:article][:title])
         expect { subject }.not_to change { Article.find(article.id).body }
         expect { subject }.not_to change { Article.find(article.id).created_at }
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
     end
   end
 
   describe "DELETE /articles/:id" do
     subject { delete article_path(article.id) }
+
     let!(:article) { create(:article) }
 
     context "ユーザーがログインしているとき" do
-      let!(:current_user) { create(:user)}
+      let!(:current_user) { create(:user) }
       it "任意の記事のレコードが削除できること" do
         expect { subject }.to change { Article.count }.by(-1)
-        expect(response).to have_http_status(204)
+        expect(response).to have_http_status(:no_content)
       end
     end
   end

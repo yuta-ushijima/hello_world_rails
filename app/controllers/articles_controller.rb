@@ -8,11 +8,11 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    if current_user
-      @article = current_user.articles.find(params[:id])
-    else
-      @article = Article.published.find(params[:id])
-    end
+    @article = if current_user
+                 current_user.articles.find(params[:id])
+               else
+                 Article.published.find(params[:id])
+               end
     render json: @article
   end
 
@@ -32,6 +32,7 @@ class ArticlesController < ApplicationController
   end
 
   private
+
     def set_article
       @article = current_user.articles.find(params[:id])
     end
