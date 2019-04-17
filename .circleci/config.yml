@@ -1,0 +1,122 @@
+version: 2.1
+
+# 共通の実行イメージをexecutorとして定義
+executors:
+  default:
+    docker:
+      # rubyの実行イメージ
+      - image: circleci/ruby:2.6.1-stretch
+        environment:
+          RAILS_ENV: test
+          BUNDLE_JOBS: 4
+          BUNDLE_RETRY: 3
+          BUNDLE_PATH: vendor/bundle
+      # mysqlの実行イメージ
+      - image: circleci/mysql:latest
+        command: mysqld --default-authentication-plugin=mysql_native_password
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: root
+          MYSQL_DATABASE: hello_world_rails_test
+    working_directory: ~/hello_world_rails
+
+jobs:
+  fetch_source_code:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - save_cache:
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hello_world_rails
+
+  bundle_dependencies:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Bundle Install Dependencies
+          command: |
+            gem install bundler -v 2.0.1
+            bundle install
+      - save_cache:
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+  rubocop:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Execute rubocop
+          command: |
+            gem install bundler -v 2.0.1
+            bundle exec rubocop
+
+  rspec:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Watting stand up database
+          command: |
+            dockerize -wait \
+            tcp://127.0.0.1:3306 -timeout 120s
+      - run:
+          name: Database setup
+          command: |
+            mv ./config/database.yml.ci  ./config/database.yml
+      - run:
+          name: Testing DB migration and seed
+          command: |
+            gem install bundler -v 2.0.1
+            bundle exec rails db:create db:migrate db:seed db:drop
+      - run:
+          name: Run RSpec
+          command: |
+            mkdir /tmp/test-results
+            mkdir -p ~/rspec
+            bundle exec rails db:create db:migrate
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+            gem install bundler -v 2.0.1
+            bundle exec rspec --require rails_helper \
+                              --color \
+                              --format progress \
+                              --format RspecJunitFormatter \
+                              --out ~/rspec/rspec.xml
+      # collect reports
+      - store_test_results:
+          path: ~/rspec
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: build
+
+workflows:
+  build:
+    jobs:
+      - fetch_source_code
+      - bundle_dependencies:
+          requires:
+            - fetch_source_code
+      - rubocop:
+          requires:
+            - bundle_dependencies
+      - rspec:
+          requires:
+            - bundle_dependencies
