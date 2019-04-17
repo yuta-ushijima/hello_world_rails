@@ -1,0 +1,68 @@
+version: 2
+jobs:
+  build:
+    docker:
+
+      # rubyの実行イメージ
+      - image: circleci/ruby:2.6.1-stretch
+        environment:
+          RAILS_ENV: test
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USERNAME: 'root'
+          MYSQL_PASSWORD: 'root'
+          MYSQL_PORT: 3306
+
+      # mysqlの実行イメージ
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_HOST: '%'
+          TZ: Asia/Tokyo
+
+    working_directory: ~/hello_world_rails
+
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "Gemfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v2-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            gem install bundler -v 2.0.1
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Database setup
+          command: |
+            mv ./config/database.yml.ci  ./config/database.yml
+      - run:
+          name: Testing DB migration and seed
+          command: |
+            bundle exec rails db:create db:migrate db:seed db:drop
+      - run:
+          name: Run RSpec
+          command: |
+            mkdir /tmp/test-results
+            bundle install --quiet
+            bundle exec rails db:create db:migrate
+            mkdir -p ~/rspec
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+            bundle exec rspec --require rails_helper \
+                              --color \
+                              --format progress \
+
+      # collect reports
+      - store_test_results:
+          path: ~/rspec
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: build
