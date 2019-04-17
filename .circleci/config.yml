@@ -52,9 +52,9 @@ jobs:
           name: Run RSpec
           command: |
             mkdir /tmp/test-results
+            mkdir -p ~/rspec
             bundle install --quiet
             bundle exec rails db:create db:migrate
-            mkdir -p ~/rspec
             TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
             bundle exec rspec --require rails_helper \
                               --color \
