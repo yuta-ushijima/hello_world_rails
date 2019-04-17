@@ -60,6 +60,8 @@ jobs:
             bundle exec rspec --require rails_helper \
                               --color \
                               --format progress \
+                              --format RspecJunitFormatter \
+                              --out ~/rspec/rspec.xml
 
       # collect reports
       - store_test_results:
