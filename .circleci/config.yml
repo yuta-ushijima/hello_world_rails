@@ -48,6 +48,22 @@ jobs:
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+
+  rubocop:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Execute rubocop
+          command: |
+            gem install bundler -v 2.0.1
+            bundle exec rubocop
+
   rspec:
     executor:
       name: default
@@ -98,6 +114,9 @@ workflows:
       - bundle_dependencies:
           requires:
             - fetch_source_code
+      - rubocop:
+          requires:
+            - bundle_dependencies
       - rspec:
           requires:
             - bundle_dependencies
