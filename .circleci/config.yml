@@ -1,6 +1,8 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+# 共通の実行イメージをexecutorとして定義
+executors:
+  default:
     docker:
 
       # rubyの実行イメージ
@@ -24,48 +26,75 @@ jobs:
 
     steps:
       - checkout
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v2-dependencies-{{ checksum "Gemfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v2-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            gem install bundler -v 2.0.1
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
       - save_cache:
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ./vendor/bundle
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
-
-      - run:
-          name: Database setup
-          command: |
-            mv ./config/database.yml.ci  ./config/database.yml
-      - run:
-          name: Testing DB migration and seed
-          command: |
-            bundle exec rails db:create db:migrate db:seed db:drop
-      - run:
-          name: Run RSpec
-          command: |
-            mkdir /tmp/test-results
-            mkdir -p ~/rspec
-            bundle install --quiet
-            bundle exec rails db:create db:migrate
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
-            bundle exec rspec --require rails_helper \
-                              --color \
-                              --format progress \
-                              --format RspecJunitFormatter \
-                              --out ~/rspec/rspec.xml
-
-      # collect reports
-      - store_test_results:
-          path: ~/rspec
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: build
+            - ~/hello_world_rails
+#
+#  bundle_dependencies:
+#    executor:
+#      name: default
+#    steps:
+#      - restore_cache: # ソースコードの復元
+#          key: v3-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+#      - restore_cache: # vendor/bundleを復元
+#          key: v3-dependencies-{{ checksum "Gemfile.lock" }}
+#      - run:
+#          name: install dependencies
+#          command: |
+#            gem install bundler -v 2.0.1
+#            bundle install
+#      - save_cache:
+#          key: v3-dependencies-{{ checksum "Gemfile.lock" }}
+#          paths:
+#            - vendor/bundle
+#  rspec:
+#    executor:
+#      name: default
+#    steps:
+#      - restore_cache: # ソースコードの復元
+#          key: v3-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+#      - restore_cache: # vendor/bundleを復元
+#          key: v3-dependencies-{{ checksum "Gemfile.lock" }}
+#
+#      - run:
+#          name: Database setup
+#          command: |
+#            mv ./config/database.yml.ci  ./config/database.yml
+#
+#      - run:
+#          name: Testing DB migration and seed
+#          command: |
+#            bundle exec rails db:create db:migrate db:seed db:drop
+#
+#      - run:
+#          name: Run RSpec
+#          command: |
+#            mkdir /tmp/test-results
+#            mkdir -p ~/rspec
+#            bundle install --quiet
+#            bundle exec rails db:create db:migrate
+#            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+#            bundle exec rspec --require rails_helper \
+#                              --color \
+#                              --format progress \
+#                              --format RspecJunitFormatter \
+#                              --out ~/rspec/rspec.xml
+#
+#      # collect reports
+#      - store_test_results:
+#          path: ~/rspec
+#      - store_artifacts:
+#          path: /tmp/test-results
+#          destination: build
+#
+workflows:
+  build:
+    jobs:
+      - fetch_source_code
+#      - bundle_dependencies:
+#          requires:
+#            - fetch_source_code
+#      - rspec:
+#          requires:
+#            - fetch_source_code
