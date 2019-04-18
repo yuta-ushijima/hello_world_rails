@@ -1,2 +1,2 @@
 [rails]
-000.000.000.000 # for deployment ip address
+127.0.0.1 # for deployment ip address
