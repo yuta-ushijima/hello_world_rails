@@ -1,0 +1,8 @@
+ansible>=2.7.10
+ecdsa>=0.13
+Jinja2>=2.10
+MarkupSafe>=1.1.1
+paramiko>=2.4.2
+pycrypto>=2.6.1
+PyYAML>=5.1
+wheel>=0.33.1

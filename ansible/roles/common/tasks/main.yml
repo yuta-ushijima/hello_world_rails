@@ -1,0 +1,57 @@
+---
+- name: install epel-release
+  shell: "amazon-linux-extras enable epel"
+  become: yes
+
+- name: setup nodejs6.x
+  shell: curl -sL https://rpm.nodesource.com/setup_6.x
+  become: yes
+
+- name: remove nodejs
+  yum:
+    name: nodejs
+    state: absent
+  become: yes
+
+- name: install nodejs 10.3.0
+  shell: rpm -Uvh https://rpm.nodesource.com//pub_10.x/el/6/x86_64/nodejs-10.3.0-1nodesource.x86_64.rpm
+  become: yes
+
+- name: Install Dependent Packages for Rails
+  become: yes
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - gcc
+      - gcc-c++
+      - libyaml-devel
+      - libffi-devel
+      - libxml2
+      - libxslt
+      - libxml2-devel
+      - libxslt-devel
+
+- name: Install bower
+  become: yes
+  shell: npm install bower -g
+
+- name: Check the Presence of Deployment Destination
+  stat:
+    path: /var/www
+  register: deploy_dir
+
+- name: Make the Destination Directory If It Does Not Exist
+  become: yes
+  file:
+    path: /var/www
+    state: directory
+  when: deploy_dir.stat.isdir is not defined
+
+- name: Change the Ownewrship of the Destination Directory
+  become: yes
+  file:
+    path: /var/www
+    state: directory
+    group: "{{ ansible_ssh_user }}"
+    owner: "{{ ansible_ssh_user }}"

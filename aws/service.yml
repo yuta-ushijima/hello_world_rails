@@ -1,0 +1,207 @@
+# AWSテンプレートのバージョン。存在する唯一のバージョンが下記なので実質固定。
+AWSTemplateFormatVersion: 2010-09-09
+# テンプレートの説明。実行時に表示されるので記載がベター。
+Description: hello-world-rails.yml Template
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.midium
+  AvailabilityZoneType:
+    Type: CommaDelimitedList
+    Default: ap-northeast-1a, ap-northeast-1c
+  KeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: yuta-ushijima
+    Description: Select Key Pair Name.
+
+# リソースの定義
+Resources:
+  # VPC定義
+  HelloWorldRailsVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-vpc
+
+  # EC2Instance定義
+  HelloWorldRailsEC2Instace:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref HelloWorldRailsSubnetAZ1a
+      InstanceType: !Ref InstanceType
+      AvailabilityZone: !Select [0, !Ref AvailabilityZoneType]
+      ImageId: ami-0d7ed3ddb85b521a6
+      KeyName: !Ref KeyPair
+      Monitoring: false
+      InstanceInitiatedShutdownBehavior: stop
+      SecurityGroupIds:
+        - !Ref HelloWorldRailsEc2SecurityGroup
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-ec2
+
+#  # ElasticIp定義
+#  HelloWorldRailsElasticIp:
+#    Type: AWS::EC2::EIP
+#    Properties:
+#      Domain: 52.193.12.167
+#    DependsOn: HelloWorldRailsEC2Instace
+
+  # Subnet定義
+  HelloWorldRailsSubnetAZ1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/27
+      VpcId: !Ref HelloWorldRailsVPC
+      AvailabilityZone: !Select [0, !Ref AvailabilityZoneType]
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-subnet-az1
+
+  HelloWorldRailsSubnetAZ1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.32/27
+      VpcId: !Ref HelloWorldRailsVPC
+      #      AvailabilityZone: ap-northeast-1c
+      AvailabilityZone: !Select [1, !Ref AvailabilityZoneType]
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-subnet-az2
+
+  # InternetGateway定義
+  HelloWorldRailsInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-igw
+
+  # VPCGatewayAttachment定義
+  HelloWorldRailsGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref HelloWorldRailsVPC
+      InternetGatewayId: !Ref HelloWorldRailsInternetGateway
+
+  # RouteTable定義
+  HelloWorldRailsRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref HelloWorldRailsVPC
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-route-table
+
+  StudyAwsRouteLocal:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref HelloWorldRailsRouteTable
+      SubnetId: !Ref HelloWorldRailsSubnetAZ1a
+
+  HelloWorldRailsRouteInternet:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref HelloWorldRailsRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref HelloWorldRailsInternetGateway
+
+  # SecurityGroup
+  HelloWorldRailsEc2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref HelloWorldRailsVPC
+      GroupDescription: This Security Group is for hello-world-rails.yml
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 111.239.255.229/32
+        # Railsのアプリケーションサーバー用
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: hello-world-rails.yml-ec2-securityGroup
+
+#  HelloWorldRailsRdsSecurityGroup:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      VpcId: !Ref HelloWorldRailsVPC
+#      GroupDescription: Study AWS RDS
+#      SecurityGroupIngress:
+#        - IpProtocol: tcp
+#          FromPort: 3306
+#          ToPort: 3306
+#          SourceSecurityGroupId: !Ref HelloWorldRailsEc2SecurityGroup
+#      SecurityGroupEgress:
+#        - IpProtocol: -1
+#          CidrIp: 0.0.0.0/0
+#      Tags:
+#        - Key: Name
+#          Value: hello-world-rails.yml-securityGroup-rds
+
+  # RDS定義
+#  HelloWorldRailsRds:
+#    Type: AWS::RDS::DBInstance
+#    Properties:
+#      DBName: HelloWorldRails
+#      Port: 3306
+#      DBInstanceClass: db.t2.micro
+#      AvailabilityZone: !Select [0, !Ref AvailabilityZoneType]
+#      VPCSecurityGroups:
+#        - !Ref HelloWorldRailsRdsSecurityGroup
+#      Engine: mysql
+#      EngineVersion: 8.0.13
+#      LicenseModel: general-public-license
+#      DBSubnetGroupName: !Ref StudyAwsRdsSubnetGroup
+#      MasterUsername: root
+#      MasterUserPassword: password
+#      AllocatedStorage: 20
+#      AllowMajorVersionUpgrade: false
+#      AutoMinorVersionUpgrade: true
+#      StorageType: gp2
+#      BackupRetentionPeriod: 1
+#      PreferredBackupWindow: 19:00-20:00
+#      PreferredMaintenanceWindow: sun:10:00-sun:11:00
+
+#  StudyAwsRdsSubnetGroup:
+#    Type: AWS::RDS::DBSubnetGroup
+#    Properties:
+#      DBSubnetGroupDescription: This DBSubnet Group is for my studying of AWS
+#      SubnetIds:
+#        - !Ref HelloWorldRailsSubnetAZ1a
+#        - !Ref HelloWorldRailsSubnetAZ1c
+
+#  # ELB定義
+#  StudyAwsELB:
+#    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+#    Properties:
+#      Name: hello-world-rails.yml-elb
+#      SecurityGroups:
+#        - !Ref HelloWorldRailsEc2SecurityGroup
+#      Subnets:
+#        - !Ref HelloWorldRailsSubnetAZ1a
+#        - !Ref HelloWorldRailsSubnetAZ1c
