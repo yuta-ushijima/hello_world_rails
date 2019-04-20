@@ -1,5 +1,5 @@
 set :stage, "production"
-set :branch, "master"
+set :branch, ENV["BRANCH"] || "master"
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.
@@ -10,7 +10,7 @@ server "52.193.12.167", user: "ec2-user", roles: %w{app db web}, my_property: :m
 
 set :unicorn_pid, "/var/www/#{fetch(:application)}/shared/tmp/pids/unicorn.pid"
 set :unicorn_rack_env, "production"
-set :unicorn_config_path, "/var/www/#{fetch(:application)/current/config/unicorn/production.rb}"
+set :unicorn_config_path, "/var/www/#{fetch(:application)}/current/config/unicorn/production.rb"
 set :rails_env, "production"
 # server "example.com", user: "deploy", roles: %w{app web}, other_property: :other_value
 # server "db.example.com", user: "deploy", roles: %w{db}
