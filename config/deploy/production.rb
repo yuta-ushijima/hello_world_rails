@@ -6,7 +6,7 @@ set :branch, ENV["BRANCH"] || "master"
 # You can define all roles on a single server, or split them:
 
 # For API
-server "52.193.12.167", user: "ec2-user", roles: %w{app db web}, my_property: :my_value
+server "52.193.12.167", user: "ec2-user", roles: %w[app db web]
 
 set :unicorn_pid, "/var/www/#{fetch(:application)}/shared/tmp/pids/unicorn.pid"
 set :unicorn_rack_env, "production"
@@ -43,12 +43,12 @@ set :rails_env, "production"
 #
 # Global options
 # --------------
- set :ssh_options, {
-   keys: %w(~/.ssh/yuta-ushijima.pem),
-   forward_agent: true,
-   auth_methods: %w(publickey),
-   proxy: Net::SSH::Proxy::Command::new('ssh hello-world-rails-ec2 -W %h:%p')
- }
+set :ssh_options, {
+  keys: %w[~/.ssh/yuta-ushijima.pem],
+  forward_agent: true,
+  auth_methods: %w[publickey],
+  proxy: Net::SSH::Proxy::Command.new("ssh hello-world-rails-ec2 -W %h:%p"),
+}
 #
 # The server-based syntax can be used to override options:
 # ------------------------------------
