@@ -1,14 +1,56 @@
 ---
+# MySQL8系のインストール
+- name: download epel-release
+  yum:
+    name: https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+    state: present
+  become: yes
+
+# 競合を避けるためにdefaultでインストールされているmariadbを削除
+- name: delete mariadb
+  yum:
+    name: mariadb-libs
+    state: removed
+  become: yes
+
+# MySQLパッケージのinstall
 - name: Ensure MySQL Packages Are Installed
   become: yes
-  become_method: sudo
-  apt: pkg={{ item }} state=installed update_cache=yes
-  with_items:
-    - python-mysqldb
-    - mysql-common
-    - mysql-server
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - mysql-community-devel*
+      - mysql-community-server*
+      - MySQL-python
   notify:
     - restart mysql
+
+# プラグイン対策
+- name: copy my.cnf
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+  sudo: yes
+
+# コピーしたmy.cnfの反映のため再起動
+- name: enable mysql
+  systemd:
+    name: mysqld
+    state: restarted
+    enabled: yes
+  sudo: yes
+
+# ルートパスワードの取得
+- name: get root password
+  shell: "grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | awk -F ' ' '{print $(NF)}'"
+  register: root_password
+
+- debug:
+    msg: "{{ root_password }}"
+
+#- name: update expired root user password
+#  command: mysql --user root --password={{ root_password.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql.root.password }}';"
 
 - name: Ensure Current MySQL Root Password
   mysql_user:
