@@ -1,9 +1,17 @@
+set :stage, "production"
+set :branch, "master"
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.
 # You can define all roles on a single server, or split them:
 
-# server "example.com", user: "deploy", roles: %w{app db web}, my_property: :my_value
+# For API
+server "52.193.12.167", user: "ec2-user", roles: %w{app db web}, my_property: :my_value
+
+set :unicorn_pid, "/var/www/#{fetch(:application)}/shared/tmp/pids/unicorn.pid"
+set :unicorn_rack_env, "production"
+set :unicorn_config_path, "/var/www/#{fetch(:application)/current/config/unicorn/production.rb}"
+set :rails_env, "production"
 # server "example.com", user: "deploy", roles: %w{app web}, other_property: :other_value
 # server "db.example.com", user: "deploy", roles: %w{db}
 
@@ -35,11 +43,12 @@
 #
 # Global options
 # --------------
-#  set :ssh_options, {
-#    keys: %w(/home/rlisowski/.ssh/id_rsa),
-#    forward_agent: false,
-#    auth_methods: %w(password)
-#  }
+ set :ssh_options, {
+   keys: %w(~/.ssh/yuta-ushijima.pem),
+   forward_agent: true,
+   auth_methods: %w(publickey),
+   proxy: Net::SSH::Proxy::Command::new('ssh hello-world-rails-ec2 -W %h:%p')
+ }
 #
 # The server-based syntax can be used to override options:
 # ------------------------------------

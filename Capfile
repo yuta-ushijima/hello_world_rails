@@ -8,7 +8,7 @@ require "capistrano/deploy"
 #
 # require "capistrano/scm/hg"
 # install_plugin Capistrano::SCM::Hg
-# or
+#
 # require "capistrano/scm/svn"
 # install_plugin Capistrano::SCM::Svn
 # or
@@ -27,11 +27,12 @@ install_plugin Capistrano::SCM::Git
 #   https://github.com/capistrano/passenger
 #
 # require "capistrano/rvm"
-# require "capistrano/rbenv"
 # require "capistrano/chruby"
-# require "capistrano/bundler"
-# require "capistrano/rails/assets"
-# require "capistrano/rails/migrations"
+require "capistrano/rbenv"
+require "capistrano/bundler"
+require "capistrano/rails/assets"
+require "capistrano/rails/migrations"
+require "capistrano3/unicorn"
 # require "capistrano/passenger"
 
 # Load custom tasks from `lib/capistrano/tasks` if you have any defined
