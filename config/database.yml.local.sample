@@ -16,4 +16,8 @@ test:
 
 production:
   <<: *default
+  reconnect: false
   database: hello_world_rails_production
+  username: root # This is sample username
+  password: root # This is sample password
+  host: 0.0.0.0 # This is sample host

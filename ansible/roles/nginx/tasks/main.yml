@@ -1,0 +1,52 @@
+---
+- name: Install openssl
+  yum: name=openssl-devel
+  become: yes
+
+- name: Enable to install NGINX.
+  shell: "amazon-linux-extras enable nginx1.12"
+  become: yes
+
+- name: Install Nginx
+  yum:
+    name: nginx
+  become: yes
+
+- name: Configure Nginx
+  become: yes
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/conf.d/{{ rails.application }}"
+
+- name: refect the configuration
+  become: yes
+  command: "ln -s /etc/init.d/nginx/{{ rails.application }} /etc/nginx/conf.d/{{ rails.application }}"
+  ignore_errors: True
+  notify:
+    - reload nginx
+
+# - name: Make directory for SSL keys
+#   sudo: yes
+#   command: mkdir -p /etc/nginx/ssl
+
+# - name: set SSL keys
+#   sudo: yes
+#   copy:
+#     src: secret/nginx.key
+#     dest: /etc/nginx/ssl/nginx.key
+#   when: nginx.upload_ssl_keys
+
+# - name: set SSL cert
+#   sudo: yes
+#   copy:
+#     src: secret/nginx.crt
+#     dest: /etc/nginx/ssl/nginx.crt
+#   when: nginx.upload_ssl_keys
+
+# - name: Generate SSL
+#   sudo: yes
+#   command: openssl req -x509 -nodes -subj "/C=JP/ST=Kanagawa/L=Yokohama/O=Example Inc./CN={{ rails.yml.application }}" -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/{{ rails.yml.application }}.key -out /etc/nginx/ssl/{{ rails.yml.application }}.crt
+#   when: not nginx.upload_ssl_keys
+
+# - name: run up services
+#   include: service.yml

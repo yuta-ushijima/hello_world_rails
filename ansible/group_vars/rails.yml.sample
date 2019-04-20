@@ -1,0 +1,15 @@
+---
+rails:
+  application: hello_world_rails # アプリケーション名 (/var/www/hello_world ←)
+
+ruby:
+  version: 2.6.1 # Rbenvで指定したRubyをインストール
+
+nginx:
+  url: www.hello_world.com # URL 以外はテンプレートに書いてあります。
+
+mysql:
+  root_password: root # MySQL のインストール時に root パスワード決めるので。
+  rails_username: rails # Rails 用にユーザを作成
+  rails_password: root # MySQL8系のため実際に実行するにはセキュアなパスワードが必要
+  rails_database: hello_world_rails_production # 本番用にデータベース作ります(database.ymlと合わせる)

@@ -1,0 +1,79 @@
+---
+# MySQL8系のインストール
+- name: download epel-release
+  yum:
+    name: https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+    state: present
+  become: yes
+
+# 競合を避けるためにdefaultでインストールされているmariadbを削除
+- name: delete mariadb
+  yum:
+    name: mariadb-libs
+    state: removed
+  become: yes
+
+# MySQLパッケージのinstall
+- name: Ensure MySQL Packages Are Installed
+  become: yes
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - mysql-community-devel*
+      - mysql-community-server*
+      - MySQL-python
+  notify:
+    - restart mysql
+
+# プラグイン対策
+- name: copy my.cnf
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+  sudo: yes
+
+# コピーしたmy.cnfの反映のため再起動
+- name: enable mysql
+  systemd:
+    name: mysqld
+    state: restarted
+    enabled: yes
+  sudo: yes
+
+# ルートパスワードの取得
+- name: get root password
+  shell: "grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | awk -F ' ' '{print $(NF)}'"
+  register: root_password
+
+- debug:
+    msg: "{{ root_password }}"
+
+#- name: update expired root user password
+#  command: mysql --user root --password={{ root_password.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql.root.password }}';"
+
+- name: Ensure Current MySQL Root Password
+  mysql_user:
+    check_implicit_admin: True
+    login_user: root
+    login_password: "{{ mysql.root_password }}"
+    name: root
+    password: "{{ mysql.root_password }}"
+    state: present
+
+- name: Create the Rails Database
+  mysql_db:
+    login_user: root
+    login_password: "{{ mysql.root_password }}"
+    name: "{{ mysql.rails_database }}"
+    encoding: utf8
+    state: present
+
+- name: Create the Rails User
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql.root_password }}"
+    name: "{{ mysql.rails_username }}"
+    password: "{{ mysql.rails_password }}"
+    priv: "*.*:ALL"
+    state: present
