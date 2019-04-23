@@ -17,7 +17,7 @@ set :rails_env, "production"
 
 # For New Encrypted Credentials of Rails5++
 # ==================
-set :linked_files, %w{config/master.key}
+set :linked_files, %w[config/master.key]
 # role-based syntax
 # ==================
 
