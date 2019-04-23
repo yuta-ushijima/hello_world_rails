@@ -32,9 +32,9 @@
       - libxml2-devel
       - libxslt-devel
 
-- name: Install bower
+- name: Install yarn
   become: yes
-  shell: npm install bower -g
+  shell: npm install yarn -g
 
 - name: Check the Presence of Deployment Destination
   stat:
