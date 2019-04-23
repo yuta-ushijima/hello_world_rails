@@ -15,6 +15,9 @@ set :rails_env, "production"
 # server "example.com", user: "deploy", roles: %w{app web}, other_property: :other_value
 # server "db.example.com", user: "deploy", roles: %w{db}
 
+# For New Encrypted Credentials of Rails5++
+# ==================
+set :linked_files, %w{config/master.key}
 # role-based syntax
 # ==================
 
