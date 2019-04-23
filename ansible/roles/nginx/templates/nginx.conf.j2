@@ -1,90 +1,37 @@
-user nginx;
-worker_processes auto;
-error_log /var/log/nginx/error.log;
-pid       /var/run/nginx.pid;
 
-events {
-  worker_connections 1024;
+upstream rails_application {
+  server unix:/var/www/{{ rails.application }}/shared/tmp/sockets/unicorn.sock fail_timeout=0;
 }
 
-http {
+server {
+  listen 80;
 
-	include       /etc/nginx/mime.types;
-  default_type  application/octet-stream;
+  server_name {{ nginx.url }};
+  root /var/www/{{ rails.application }}/current/public;
+  access_log /var/log/nginx/{{ rails.application }}.access;
+  error_log /var/log/nginx/{{ rails.application }}.error;
 
-  log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for" "$gzip_ratio"';
+  try_files $uri/index.html $uri @app;
 
-  access_log  /var/log/nginx/access.log  main;
+  #
+  # Currently SSL has not supported by this ansible script yet
+  #
+  # listen 443 ssl;
+  # ssl_certificate /etc/nginx/ssl/nginx.crt;
+  # ssl_certificate_key /etc/nginx/ssl/nginx.key;
+  #
 
-  sendfile        on;
-  #tcp_nopush     on;
+  location ~ ^/(assets|images|javascripts|stylesheets|system|components)/ {
+    gzip_static on;
+    expires     max;
+    add_header  Cache-Control public;
+  }
 
-  #keepalive_timeout  0;
-  keepalive_timeout  65;
-
-  gzip              on;
-  gzip_http_version 1.0;
-  gzip_types        text/plain
-                    text/xml
-                    text/css
-                    application/xml
-                    application/xhtml+xml
-                    application/rss+xml
-                    application/atom_xml
-                    application/javascript
-                    application/x-javascript
-                    application/x-httpd-php;
-  gzip_disable      "MSIE [1-6]\.";
-  gzip_disable      "Mozilla/4";
-  gzip_comp_level   1;
-  gzip_proxied        any;
-  gzip_vary           on;
-
-  # Load modular configuration files from the /etc/nginx/conf.d directory.
-  # See http://nginx.org/en/docs/ngx_core_module.html#include
-  # for more information.
-  include /etc/nginx/conf.d/*.conf;
-
-	upstream rails_application {
-	  server unix:/var/www/{{ rails.application }}/shared/tmp/sockets/unicorn.sock fail_timeout=0;
-	}
-
-	server {
-	  listen 80 default_server;
-
-	  server_name {{ nginx.url }};
-	  root /var/www/{{ rails.application }}/current/public;
-	  access_log /var/log/nginx/{{ rails.application }}.access;
-	  error_log /var/log/nginx/{{ rails.application }}.error;
-
-	  try_files $uri/index.html $uri @app;
-
-	  #
-	  # Currently SSL has not supported by this ansible script yet
-	  #
-	  # listen 443 ssl;
-	  # ssl_certificate /etc/nginx/ssl/nginx.crt;
-	  # ssl_certificate_key /etc/nginx/ssl/nginx.key;
-	  #
-
-	  location ~ ^/(assets|images|javascripts|stylesheets|system|components)/ {
-	    gzip_static on;
-	    expires     max;
-	    add_header  Cache-Control public;
-	  }
-
-	  location @app {
-	    proxy_set_header X-Forwarded-Proto $scheme;
-	    proxy_set_header X-Real-IP $remote_addr;
-	    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-	    proxy_set_header Host $http_host;
-
-	    if (!-f $request_filename) {
-        proxy_pass http://rails_application;
-        break;
-	    }
-	  }
-	}
+  location @app {
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_pass http://rails_application;
+  }
 }
