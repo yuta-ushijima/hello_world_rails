@@ -4,10 +4,8 @@ git_source(:github) {|repo| "https://github.com/#{repo}.git" }
 ruby "2.6.1"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 5.2.2", ">= 5.2.2.1"
-# Use sqlite3 as the database for Active Record
-# gem 'sqlite3', '~> 1.3.6'
 gem "mysql2"
+gem "rails", "~> 5.2.2", ">= 5.2.2.1"
 # Use Puma as the app server
 gem "puma", "~> 3.11"
 # Use SCSS for stylesheets
@@ -30,9 +28,7 @@ gem "jbuilder", "~> 2.5"
 
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
-
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
+gem "unicorn"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", ">= 1.1.0", require: false
@@ -56,6 +52,12 @@ group :development do
   gem "listen", ">= 3.0.5", "< 3.2"
   gem "web-console", ">= 3.3.0"
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem "capistrano", "~> 3.10", require: false
+  gem "capistrano-bundler", "~> 1.5"
+  gem "capistrano-database-yml", "~> 1.0.0"
+  gem "capistrano-rails", "~> 1.4", require: false
+  gem "capistrano-rbenv", "~> 2.1"
+  gem "capistrano3-unicorn"
   gem "spring"
   gem "spring-watcher-listen", "~> 2.0.0"
 end

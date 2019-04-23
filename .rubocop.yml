@@ -18,3 +18,5 @@ Rails/Output:
   Enabled: false
 RSpec/LetSetup:
   Enabled: false
+Lint/HandleExceptions:
+  Enabled: false

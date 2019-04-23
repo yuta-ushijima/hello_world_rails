@@ -41,7 +41,9 @@
   become: yes
 
 # MySQLパッケージのinstall
-
+- name: download mysql-devel
+  command: yum install -y mysql-devel
+  become: yes
 
 - name: stand up mysqld
   shell: systemctl start mysqld.service
