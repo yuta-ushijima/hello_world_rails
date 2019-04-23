@@ -2,13 +2,14 @@
 app_path = "/var/www/hello_world_rails"
 shared_path = "#{app_path}/shared/"
 current_path = "#{app_path}/current"
-
+pid_path = "#{shared_path}/tmp/pids/unicorn.pid"
+listen_path = "#{shared_path}/tmp/sockets/unicorn.sock"
 # unicorn paths
 working_directory current_path
-pid               "#{shared_path}/tmp/pids/unicorn.pid"
+pid pid_path
 
 # listen
-listen "#{app_path}/shared/tmp/sockets/unicorn.sock", backlog: 64
+listen listen_path, backlog: 64
 
 # logging
 stderr_path "#{app_path}/log/unicorn.stderr.log"
