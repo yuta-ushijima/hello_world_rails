@@ -1,9 +1,6 @@
 ---
-# MySQL8系のインストール
-- name: download epel-release
-  yum:
-    name: https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
-    state: present
+- name: stop mysql before execute tasks
+  shell: systemctl stop mysqld
   become: yes
 
 # 競合を避けるためにdefaultでインストールされているmariadbを削除
@@ -13,33 +10,42 @@
     state: removed
   become: yes
 
-# MySQLパッケージのinstall
-- name: Ensure MySQL Packages Are Installed
+- name: delete default mysql
+  shell: yum -y remove mysql*
   become: yes
-  yum:
-    name: "{{ packages }}"
-  vars:
-    packages:
-      - mysql-community-devel*
-      - mysql-community-server*
-      - MySQL-python
-  notify:
-    - restart mysql
+#- name: delete default mysql
+#  yum:
+#    name: mysql*
+#    state: removed
+#  become: yes
 
-# プラグイン対策
-- name: copy my.cnf
-  template:
-    src: my.cnf.j2
-    dest: /etc/my.cnf
-  sudo: yes
+- name: delete default /var/lib/mysql
+  shell: rm -rf /var/lib/mysql*
+  become: yes
 
-# コピーしたmy.cnfの反映のため再起動
-- name: enable mysql
-  systemd:
-    name: mysqld
-    state: restarted
-    enabled: yes
-  sudo: yes
+- name: delete default mysqld.log
+  shell: rm -rf /var/log/mysqld.log
+  become: yes
+
+# MySQL8系のインストール
+- name: download epel-release
+  command: yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+  become: yes
+
+- name: download mysql-community-server
+  command: yum install -y mysql-community-server
+  become: yes
+
+- name: download MySQL-python
+  command: yum install -y MySQL-python
+  become: yes
+
+# MySQLパッケージのinstall
+
+
+- name: stand up mysqld
+  shell: systemctl start mysqld.service
+  become: yes
 
 # ルートパスワードの取得
 - name: get root password
@@ -49,8 +55,23 @@
 - debug:
     msg: "{{ root_password }}"
 
-#- name: update expired root user password
-#  command: mysql --user root --password={{ root_password.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql.root.password }}';"
+- name: update expired root user password
+  command: mysql --user root --password={{ root_password.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql.root_password }}';"
+
+# プラグイン対策
+- name: copy my.cnf
+  template:
+    src: my.cnf.j2
+    dest:  /etc/my.cnf
+  become: yes
+
+# コピーしたmy.cnfの反映のため再起動
+- name: enable mysql
+  shell: systemctl restart mysqld.service
+  become: yes
+
+- name: update root user plugin
+  command: mysql --user root --password={{ mysql.root_password }} --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql.root_password }}';"
 
 - name: Ensure Current MySQL Root Password
   mysql_user:
@@ -60,6 +81,7 @@
     name: root
     password: "{{ mysql.root_password }}"
     state: present
+    host: '%'
 
 - name: Create the Rails Database
   mysql_db:
