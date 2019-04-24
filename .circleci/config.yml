@@ -121,7 +121,7 @@ jobs:
             - "<fingerprints>"
       - deploy:
           name: deploy by capistrano
-          command: .cirlceci/deploy_capistrano.sh
+          command: .circleci/deploy_capistrano.sh
 workflows:
   build:
     jobs:
