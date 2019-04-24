@@ -64,6 +64,7 @@ jobs:
             gem install bundler -v 2.0.1
             bundle exec rubocop
 
+
   rspec:
     executor:
       name: default
@@ -107,6 +108,20 @@ jobs:
           path: /tmp/test-results
           destination: build
 
+  deploy_by_capistrano:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+      - add_ssh_keys: # デプロイ用のsshキーを追加
+          fingerprints:
+            - "<fingerprints>"
+      - deploy:
+          name: deploy by capistrano
+          command: .cirlceci/deploy_capistrano.sh
 workflows:
   build:
     jobs:
@@ -120,3 +135,7 @@ workflows:
       - rspec:
           requires:
             - bundle_dependencies
+      - deploy_by_capistrano:
+          requires: # すべてのテスト実行後にdeployを行う
+            - rubocop
+            - rspec
