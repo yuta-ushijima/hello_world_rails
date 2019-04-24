@@ -17,7 +17,8 @@ set :rails_env, "production"
 
 # For New Encrypted Credentials of Rails5++
 # ==================
-set :linked_files, %w[config/master.key]
+set :linked_files, %w[config/master.key config/database.yml]
+
 # role-based syntax
 # ==================
 
@@ -50,7 +51,7 @@ set :ssh_options, {
   keys: %w[~/.ssh/yuta-ushijima.pem],
   forward_agent: true,
   auth_methods: %w[publickey],
-  proxy: Net::SSH::Proxy::Command.new("ssh hello-world-rails-ec2 -W %h:%p"),
+  # proxy: Net::SSH::Proxy::Command.new("ssh -W %h:%p"),
 }
 #
 # The server-based syntax can be used to override options:
@@ -65,3 +66,4 @@ set :ssh_options, {
 #     auth_methods: %w(publickey password)
 #     # password: "please use keys"
 #   }
+#

@@ -26,10 +26,10 @@ set :deploy_to, "/var/www/#{fetch(:application)}"
 set :linked_files, fetch(:linked_files, []).push("config/database.yml")
 
 # Default value for :linked_files is []
-# set :linked_files, fetch(:linked_files, []).push("config/master.key")
+set :linked_files, fetch(:linked_files, []).push("config/master.key")
 
 # symlink for database.yml
-# set :linked_files, %w{config/database.yml}
+set :linked_files, %w[config/database.yml]
 
 # Default value for linked_dirs is []
 append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/system"
@@ -51,16 +51,16 @@ set :keep_releases, 3
 
 # Uncomment the following to require manually verifying the host key before first deploy.
 # set :ssh_options, verify_host_key: :secure
+set :ssh_options, keepalive: true, keepalive_interval: 60
 
 namespace :deploy do
-  desc "Upload database.yml/master.key"
+  desc "Upload database.yml"
   task :upload do
     on roles(:all) do |_host|
       if test "[ ! -d #{shared_path}/config ]"
         execute "mkdir -p #{shared_path}/config"
       end
-      upload!("config/database.yml", "#{shared_path}/config/database.yml")
-      upload!("config/master.key", "#{shared_path}/config/master.key")
+      upload!("config/database.yml.production.ci", "#{shared_path}/config/database.yml")
     end
   end
   before :starting, "deploy:upload"
