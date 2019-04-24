@@ -68,8 +68,8 @@ group :test do
 end
 
 group :production do
-  gem "unicorn"
   gem "mini_racer", platforms: :ruby
+  gem "unicorn"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
