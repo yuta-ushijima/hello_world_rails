@@ -121,7 +121,6 @@ jobs:
 #            - "b1:91:de:3b:9c:d8:b0:8d:19:4c:4e:19:ba:e0:59:22"
       - deploy:
           name: deploy by capistrano
-          key: {{ .Environment.RAILS_MASTER_KEY }}
           command: |
             gem install bundler -v 2.0.1
             bundle exec cap production deploy
