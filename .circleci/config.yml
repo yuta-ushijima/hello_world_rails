@@ -38,14 +38,14 @@ jobs:
       - restore_cache: # ソースコードの復元
           key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
       - run:
           name: Bundle Install Dependencies
           command: |
             gem install bundler -v 2.0.1
             bundle install
       - save_cache:
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -56,7 +56,7 @@ jobs:
       - restore_cache: # ソースコードの復元
           key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: Execute rubocop
@@ -72,7 +72,7 @@ jobs:
       - restore_cache: # ソースコードの復元
           key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: Watting stand up database
@@ -115,7 +115,7 @@ jobs:
       - restore_cache: # ソースコードの復元
           key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v2-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
 #      - add_ssh_keys: # デプロイ用のsshキーを追加
 #          fingerprints:
 #            - "b1:91:de:3b:9c:d8:b0:8d:19:4c:4e:19:ba:e0:59:22"
