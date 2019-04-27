@@ -116,9 +116,6 @@ jobs:
           key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
           key: v4-dependencies-{{ checksum "Gemfile.lock" }}
-#      - add_ssh_keys: # デプロイ用のsshキーを追加
-#          fingerprints:
-#            - "b1:91:de:3b:9c:d8:b0:8d:19:4c:4e:19:ba:e0:59:22"
       - deploy:
           name: deploy by capistrano
           command: |
@@ -131,13 +128,16 @@ workflows:
       - bundle_dependencies:
           requires:
             - fetch_source_code
-      - rubocop:
+      - rubocop: # bundle_dependenciesの後にrubocopを実行する
           requires:
             - bundle_dependencies
       - rspec:
-          requires:
+          requires: # bundle_dependenciesの後にrspecを実行する
             - bundle_dependencies
       - deploy_by_capistrano:
           requires: # すべてのテスト実行後にdeployを行う
             - rubocop
             - rspec
+          filters: # masterブランチのみdeployを行う
+            branches:
+              only: master
