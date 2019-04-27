@@ -62,3 +62,18 @@
 
 - name: Install bundle
   shell: bash -lc "gem install bundler -v 2.0.1"
+
+- name: Add privillage
+  shell: chown -R ec2-user:ec2-user /var/www/hello_world_rails/
+
+- name: Make directory for unicorn
+  shell: mkdir -p /var/www/hello_world_rails/log/
+  become: yes
+
+- name: Make file for unicorn standard error
+  shell: touch /var/www/hello_world_rails/log/unicorn.stderr.log
+  become: yes
+
+- name: Make file for unicorn standard out
+  shell: touch /var/www/hello_world_rails/log/unicorn.stdout.log
+  become: yes

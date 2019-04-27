@@ -27,7 +27,7 @@ jobs:
     steps:
       - checkout
       - save_cache:
-          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+          key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/hello_world_rails
 
@@ -36,16 +36,16 @@ jobs:
       name: default
     steps:
       - restore_cache: # ソースコードの復元
-          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+          key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
       - run:
           name: Bundle Install Dependencies
           command: |
             gem install bundler -v 2.0.1
             bundle install
       - save_cache:
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -54,9 +54,9 @@ jobs:
       name: default
     steps:
       - restore_cache: # ソースコードの復元
-          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+          key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: Execute rubocop
@@ -64,14 +64,15 @@ jobs:
             gem install bundler -v 2.0.1
             bundle exec rubocop
 
+
   rspec:
     executor:
       name: default
     steps:
       - restore_cache: # ソースコードの復元
-          key: v1-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+          key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache: # vendor/bundleを復元
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: Watting stand up database
@@ -107,6 +108,19 @@ jobs:
           path: /tmp/test-results
           destination: build
 
+  deploy_by_capistrano:
+    executor:
+      name: default
+    steps:
+      - restore_cache: # ソースコードの復元
+          key: v4-hello_world_rails-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache: # vendor/bundleを復元
+          key: v4-dependencies-{{ checksum "Gemfile.lock" }}
+      - deploy:
+          name: deploy by capistrano
+          command: |
+            gem install bundler -v 2.0.1
+            bundle exec cap production deploy
 workflows:
   build:
     jobs:
@@ -114,9 +128,16 @@ workflows:
       - bundle_dependencies:
           requires:
             - fetch_source_code
-      - rubocop:
+      - rubocop: # bundle_dependenciesの後にrubocopを実行する
           requires:
             - bundle_dependencies
       - rspec:
-          requires:
+          requires: # bundle_dependenciesの後にrspecを実行する
             - bundle_dependencies
+      - deploy_by_capistrano:
+          requires: # すべてのテスト実行後にdeployを行う
+            - rubocop
+            - rspec
+          filters: # masterブランチのみdeployを行う
+            branches:
+              only: master
