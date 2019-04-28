@@ -1,7 +1,7 @@
 # AWSテンプレートのバージョン。存在する唯一のバージョンが下記なので実質固定。
 AWSTemplateFormatVersion: 2010-09-09
 # テンプレートの説明。実行時に表示されるので記載がベター。
-Description: hello-world-rails.yml Template
+Description: hello-world-rails Template
 
 Parameters:
   InstanceType:
@@ -30,7 +30,7 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-vpc
+          Value: hello-world-rails-vpc
 
   # EC2Instance定義
   HelloWorldRailsEC2Instace:
@@ -47,7 +47,7 @@ Resources:
         - !Ref HelloWorldRailsEc2SecurityGroup
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-ec2
+          Value: hello-world-rails-ec2
 
   # ElasticIp定義
   HelloWorldRailsElasticIp:
@@ -65,7 +65,7 @@ Resources:
       AvailabilityZone: !Select [0, !Ref AvailabilityZoneType]
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-subnet-az1
+          Value: hello-world-rails-subnet-az1
 
   HelloWorldRailsSubnetAZ1c:
     Type: AWS::EC2::Subnet
@@ -76,7 +76,7 @@ Resources:
       AvailabilityZone: !Select [1, !Ref AvailabilityZoneType]
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-subnet-az2
+          Value: hello-world-rails-subnet-az2
 
   # InternetGateway定義
   HelloWorldRailsInternetGateway:
@@ -100,7 +100,7 @@ Resources:
       VpcId: !Ref HelloWorldRailsVPC
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-route-table
+          Value: hello-world-rails-route-table
 
   HelloWorldRailsRouteLocal:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -120,7 +120,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref HelloWorldRailsVPC
-      GroupDescription: This Security Group is for hello-world-rails.yml
+      GroupDescription: This Security Group is for hello-world-rails
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -144,8 +144,9 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-ec2-securityGroup
+          Value: hello-world-rails-ec2-securityGroup
 
+  #  RDSのsecurity-group定義
   HelloWorldRailsRdsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -161,13 +162,13 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: hello-world-rails.yml-securityGroup-rds
+          Value: hello-world-rails-securityGroup-rds
 
-  # RDS定義
+  #  RDS定義
   HelloWorldRailsRds:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: HelloWorldRails
+      DBName: HelloWorldRailsMaster
       Port: 3306
       DBInstanceClass: db.t2.micro
       AvailabilityZone: !Select [0, !Ref AvailabilityZoneType]
@@ -187,6 +188,7 @@ Resources:
       PreferredBackupWindow: 19:00-20:00
       PreferredMaintenanceWindow: sun:10:00-sun:11:00
 
+  #  RDSのsubnet定義
   HelloWorldRailsRdsSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
