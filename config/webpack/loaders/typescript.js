@@ -5,7 +5,10 @@ module.exports = {
   use: [
     {
       loader: 'ts-loader',
-      options: PnpWebpackPlugin.tsLoaderOptions()
+      options: PnpWebpackPlugin.tsLoaderOptions(),
+      options: {
+        appendTsSuffixTo: [/\.vue$/]
+      }
     }
   ]
 }
