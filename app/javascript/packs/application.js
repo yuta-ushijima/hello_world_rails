@@ -16,4 +16,4 @@
 // const imagePath = (name) => images(name, true)
 
 console.log('Hello World from Webpacker')
-import "../../assets/stylesheets/application.css"
+import "app/assets/stylesheets/application.css"
