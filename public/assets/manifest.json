@@ -1,0 +1,64 @@
+{
+  "app.js": "/assets/js/app-d56a3e8e1b8087f04c00.js",
+  "app.js.map": "/assets/js/app-d56a3e8e1b8087f04c00.js.map",
+  "application.js": "/assets/js/application-2542286b74e386995694.js",
+  "application.js.map": "/assets/js/application-2542286b74e386995694.js.map",
+  "container/users_container.js": "/assets/js/container/users_container-a37ebf29283e2a65e82d.js",
+  "container/users_container.js.map": "/assets/js/container/users_container-a37ebf29283e2a65e82d.js.map",
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/assets/js/app-d56a3e8e1b8087f04c00.js"
+      ],
+      "js.map": [
+        "/assets/js/app-d56a3e8e1b8087f04c00.js.map"
+      ]
+    },
+    "application": {
+      "js": [
+        "/assets/js/application-2542286b74e386995694.js"
+      ],
+      "js.map": [
+        "/assets/js/application-2542286b74e386995694.js.map"
+      ]
+    },
+    "container/users_container": {
+      "js": [
+        "/assets/js/container/users_container-a37ebf29283e2a65e82d.js"
+      ],
+      "js.map": [
+        "/assets/js/container/users_container-a37ebf29283e2a65e82d.js.map"
+      ]
+    },
+    "hello_typescript": {
+      "js": [
+        "/assets/js/hello_typescript-68a0a4deba16fce0b290.js"
+      ],
+      "js.map": [
+        "/assets/js/hello_typescript-68a0a4deba16fce0b290.js.map"
+      ]
+    },
+    "hello_vue": {
+      "js": [
+        "/assets/js/hello_vue-85a78d7361b607b84b72.js"
+      ],
+      "js.map": [
+        "/assets/js/hello_vue-85a78d7361b607b84b72.js.map"
+      ]
+    },
+    "router/router": {
+      "js": [
+        "/assets/js/router/router-96d04cdc588472c405f1.js"
+      ],
+      "js.map": [
+        "/assets/js/router/router-96d04cdc588472c405f1.js.map"
+      ]
+    }
+  },
+  "hello_typescript.js": "/assets/js/hello_typescript-68a0a4deba16fce0b290.js",
+  "hello_typescript.js.map": "/assets/js/hello_typescript-68a0a4deba16fce0b290.js.map",
+  "hello_vue.js": "/assets/js/hello_vue-85a78d7361b607b84b72.js",
+  "hello_vue.js.map": "/assets/js/hello_vue-85a78d7361b607b84b72.js.map",
+  "router/router.js": "/assets/js/router/router-96d04cdc588472c405f1.js",
+  "router/router.js.map": "/assets/js/router/router-96d04cdc588472c405f1.js.map"
+}
