@@ -86,5 +86,11 @@ http {
         break;
 	    }
 	  }
+
+	  # For webpacker
+	  location ^~ /packs/ {
+        gzip_static on;
+        expires max;
+      }
 	}
 }
