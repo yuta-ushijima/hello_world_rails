@@ -39,6 +39,7 @@ RUN apk update \
 	    build-base \
 	    wget \
 	    yaml-dev \
+	    yarn \
       zlib-dev \
  && gem install -q -N bundler \
  && gem install -q -N pkg-config \

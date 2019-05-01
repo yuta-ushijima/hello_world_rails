@@ -1,2 +1,8 @@
-<h1>Homes#index</h1>
-<%= @message %>
+<%= javascript_pack_tag 'app' %>
+<%= stylesheet_pack_tag 'application' %>
+
+<div id="app">
+  <div class="container">
+    <router-view></router-view>
+  </div>
+</div>

@@ -36,6 +36,10 @@
   become: yes
   shell: npm install yarn -g
 
+- name: Execute yarn
+  become: yes
+  shell: yarn install --check-files
+
 - name: Check the Presence of Deployment Destination
   stat:
     path: /var/www
