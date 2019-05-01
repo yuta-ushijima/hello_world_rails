@@ -1,3 +1,4 @@
 ---
 - name: reload nginx # フック処理用
   service: name=nginx state=reloaded
+  become: yes
