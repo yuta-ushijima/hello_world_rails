@@ -5,12 +5,12 @@ ruby "2.6.1"
 
 gem "mysql2"
 gem "puma", "~> 3.11"
-gem "rails", "~> 5.2.2", ">= 5.2.2.1"
-gem "sass-rails", "~> 5.0"
+gem "rails", "~> 5.2.4", ">= 5.2.4.3"
+gem "sass-rails", "~> 5.0", ">= 5.0.7"
 gem "uglifier", ">= 1.3.0"
 
-gem "coffee-rails", "~> 4.2"
-gem "jbuilder", "~> 2.5"
+gem "coffee-rails", "~> 4.2", ">= 4.2.2"
+gem "jbuilder", "~> 2.8", ">= 2.8.0"
 gem "turbolinks", "~> 5"
 
 gem "bootsnap", ">= 1.1.0", require: false
@@ -38,8 +38,8 @@ group :development do
   gem "capistrano3-unicorn"
   gem "listen", ">= 3.0.5", "< 3.2"
   gem "spring"
-  gem "spring-watcher-listen", "~> 2.0.0"
-  gem "web-console", ">= 3.3.0"
+  gem "spring-watcher-listen", "~> 2.0.1"
+  gem "web-console", ">= 3.7.0"
 end
 
 group :test do
