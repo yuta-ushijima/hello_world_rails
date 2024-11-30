@@ -5,12 +5,12 @@ ruby "2.6.1"
 
 gem "mysql2"
 gem "puma", "~> 3.11"
-gem "rails", "~> 5.2.2", ">= 5.2.2.1"
-gem "sass-rails", "~> 5.0"
+gem "rails", "~> 5.2.4", ">= 5.2.4.3"
+gem "sass-rails", "~> 5.0", ">= 5.0.7"
 gem "uglifier", ">= 1.3.0"
 
-gem "coffee-rails", "~> 4.2"
-gem "jbuilder", "~> 2.5"
+gem "coffee-rails", "~> 4.2", ">= 4.2.2"
+gem "jbuilder", "~> 2.8", ">= 2.8.0"
 gem "turbolinks", "~> 5"
 
 gem "bootsnap", ">= 1.1.0", require: false
@@ -18,13 +18,13 @@ gem "webpacker", github: "rails/webpacker"
 
 group :development, :test do
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
-  gem "factory_bot_rails"
+  gem "factory_bot_rails", ">= 5.0.1"
   gem "faker"
   gem "onkcop", require: true
   gem "pry-byebug"
   gem "pry-doc"
   gem "pry-rails"
-  gem "rspec-rails"
+  gem "rspec-rails", ">= 3.8.2"
   gem "rspec_junit_formatter"
   gem "rubocop-performance"
 end
@@ -37,9 +37,9 @@ group :development do
   gem "capistrano-rbenv", "~> 2.1"
   gem "capistrano3-unicorn"
   gem "listen", ">= 3.0.5", "< 3.2"
-  gem "spring"
-  gem "spring-watcher-listen", "~> 2.0.0"
-  gem "web-console", ">= 3.3.0"
+  gem "spring", ">= 2.0.2"
+  gem "spring-watcher-listen", "~> 2.0.1"
+  gem "web-console", ">= 3.7.0"
 end
 
 group :test do
