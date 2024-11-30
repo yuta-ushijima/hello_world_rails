@@ -45,7 +45,7 @@ end
 group :test do
   gem "capybara", ">= 2.15"
   gem "chromedriver-helper"
-  gem "selenium-webdriver"
+  gem "selenium-webdriver", ">= 3.141.0"
 end
 
 group :production do
