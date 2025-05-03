@@ -24,7 +24,7 @@ group :development, :test do
   gem "pry-byebug"
   gem "pry-doc"
   gem "pry-rails"
-  gem "rspec-rails"
+  gem "rspec-rails", ">= 8.0.0"
   gem "rspec_junit_formatter"
   gem "rubocop-performance"
 end
