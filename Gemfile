@@ -18,7 +18,7 @@ gem "webpacker", github: "rails/webpacker"
 
 group :development, :test do
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
-  gem "factory_bot_rails"
+  gem "factory_bot_rails", ">= 6.5.0"
   gem "faker"
   gem "onkcop", require: true
   gem "pry-byebug"
